@@ -5,3 +5,9 @@ export interface Note{
     category: string;
     isPinned: boolean;
 }
+
+export interface Stats{
+    totalNotes: number;
+    pinnedNotes: number;
+    unpinnedNotes: number;
+}

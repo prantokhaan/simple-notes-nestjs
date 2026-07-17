@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { Note } from './notes.interface';
+import type { Note, Stats } from './notes.interface';
 
 
 @Injectable()
@@ -111,6 +111,21 @@ export class NotesService {
         note.isPinned = !note.isPinned;
 
         return note;
+    }
+
+    notesStats(): Stats {
+        const notes = this.getAllNotes();
+        const totalNotes = notes.length;
+
+        const allPinnedNotes = this.pinnedNotes();
+        const pinnedNotes = allPinnedNotes.length;
+        const unpinnedNotes = totalNotes - pinnedNotes;
+
+        return {
+            totalNotes,
+            pinnedNotes,
+            unpinnedNotes,
+        }
     }
 
 }

@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Put, Query, StreamableFile } from '@nestjs/common';
 import { NotesService } from './notes.service';
-import type { Note } from './notes.interface';
+import type { Note, Stats } from './notes.interface';
 import { createReadStream } from 'fs';
 import { join } from 'path';
 
@@ -47,6 +47,11 @@ export class NotesController {
             type: "text/plain",
             disposition: 'attachment; filename="test.txt'
         });
+    }
+
+    @Get('stats')
+    noteStats(): Stats {
+        return this.notesService.notesStats();
     }
 
     @Get(":id")
