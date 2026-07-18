@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class ConfigService {
     getMaxNotes(): number {
-        return 3;
+        return 9;
     }
 
     getApiVersion(): string {

@@ -1,5 +1,5 @@
 export interface Note{
-    id: number;
+    id: string;
     title: string;
     content: string;
     category: string;
@@ -16,5 +16,7 @@ export interface Info{
     appName : string,
     version ?: string,
     status ?: string,
-    environment ?: string
+    environment ?: string,
+    maxNotes ?: number,
+    isReadOnly ?: boolean
 }

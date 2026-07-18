@@ -8,7 +8,8 @@ export class HealthService {
         @Inject('APP_NAME') private readonly appName: string,
         @Inject('MAX_NOTES') private readonly maxNotes: number,
         @Inject('API_VERSION') private readonly apiVersion: string,
-        @Inject('ENVIRONMENT') private readonly environment: string
+        @Inject('ENVIRONMENT') private readonly environment: string,
+        @Inject('READ_ONLY_MODE') private readonly readOnlyMode: boolean
     ){}
 
     getHealth(): Info {
@@ -16,7 +17,9 @@ export class HealthService {
             status: "ok",
             appName: this.appName,
             version: this.apiVersion,
-            environment: this.environment
+            environment: this.environment,
+            maxNotes: this.maxNotes,
+            isReadOnly: this.readOnlyMode
         }
     }
 }

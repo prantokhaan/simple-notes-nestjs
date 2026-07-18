@@ -1,46 +1,22 @@
 import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { Info, Note, Stats } from './notes.interface';
+import { LoggerService } from 'src/logger/logger.service';
+import { StatService } from 'src/stat/stat.service';
+import { Stat } from 'src/stat/stat.interface';
 
 
 @Injectable()
 export class NotesService {
-    private notes: Note[] = [
-        {
-            id: 1,
-            title: "NestJS",
-            content: "Learning NestJS",
-            category: "programming",
-            isPinned: false
-        },
-        {
-            id: 2,
-            title: "TypeScript",
-            content: "Learning TypeScript",
-            category: "programming",
-            isPinned: true
-        },
-        {
-            id: 3,
-            title: "Love",
-            content: "Love is Dangerous",
-            category: "personal",
-            isPinned: true
-        },
-        {
-            id: 4,
-            title: "Hate",
-            content: "Hate is Dangerous",
-            category: "personal",
-            isPinned: false
-        }
-    ];
-    private nextId: number = 5;
 
     constructor(
         @Inject('APP_NAME') private readonly appName: string,
         @Inject('MAX_NOTES') private readonly maxNotes: number,
         @Inject('API_VERSION') private readonly apiVersion: string,
-        @Inject('READ_ONLY_MODE') private readonly readOnlyMode: boolean
+        @Inject('READ_ONLY_MODE') private readonly readOnlyMode: boolean,
+        @Inject('ID_GENERATOR') private readonly idGen: () => string,
+        @Inject('DATABASE') private notes: Note[],
+        private readonly logger: LoggerService,
+        private readonly stat: StatService
     ) {}
 
 
@@ -55,13 +31,14 @@ export class NotesService {
 
     createNote(title: string, content: string, category: string, isPinned: boolean): Note{
         if(this.readOnlyMode){
+            this.logger.error("Read Only Mode is on, new note entry restricted");
             throw new ConflictException({
                 message: "read only mode is on, no new note can be added"
             })
         }
 
         const newNote: Note = {
-            id: this.nextId++,
+            id: this.idGen(),
             title,
             content,
             category,
@@ -70,10 +47,16 @@ export class NotesService {
 
         this.notes.push(newNote);
 
+        this.stat.updateNotes('create');
+
+        this.logger.createLog("New Note Added Successfully")
+
+        this.logger.log("New Note Added Successfully");
+
         return newNote;
     }
 
-    getNoteById(id: number): Note{
+    getNoteById(id: string): Note{
         const note = this.notes.find((item) => item.id === id);
         if(!note){
             throw new NotFoundException(`Note with ID ${id} not found.`);
@@ -82,7 +65,7 @@ export class NotesService {
         return note;
     }
 
-    updateNote(id: number, title?: string, content?: string, category?: string, isPinned?: boolean): Note {
+    updateNote(id: string, title?: string, content?: string, category?: string, isPinned?: boolean): Note {
         const note = this.getNoteById(id);
 
         if(title !== undefined) note.title = title;
@@ -90,15 +73,19 @@ export class NotesService {
         if(category !== undefined) note.category = category;
         if(isPinned !== undefined) note.isPinned = isPinned;
 
+        this.stat.updateNotes('update');
+
         return note;
     }
 
-    deleteNote(id: number): Note {
+    deleteNote(id: string): Note {
         const note = this.getNoteById(id);
 
         this.notes = this.notes.filter(
             (ex) => ex.id !== id
         );
+
+        this.stat.updateNotes('delete');
 
         return note;
     }
@@ -123,7 +110,7 @@ export class NotesService {
         )
     }
 
-    updatePin(id: number): Note {
+    updatePin(id: string): Note {
         const note = this.getNoteById(id);
 
         note.isPinned = !note.isPinned;
@@ -143,6 +130,14 @@ export class NotesService {
             totalNotes,
             pinnedNotes,
             unpinnedNotes,
+        }
+    }
+
+    notesStat(): Stat {
+        return {
+            totalNotesCreated: this.stat.getNotesCreated(),
+            totalNotesDeleted: this.stat.getNotesDeleted(),
+            totalNotesUpdated: this.stat.getNotesUpdated()
         }
     }
 

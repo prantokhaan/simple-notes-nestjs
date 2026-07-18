@@ -3,6 +3,7 @@ import { NotesService } from './notes.service';
 import type { Info, Note, Stats } from './notes.interface';
 import { createReadStream } from 'fs';
 import { join } from 'path';
+import type { Stat } from 'src/stat/stat.interface';
 
 @Controller({
     path: "notes",
@@ -52,6 +53,11 @@ export class NotesController {
     }
 
     @Get('stats')
+    noteStat(): Stat {
+        return this.notesService.notesStat();
+    }
+
+    @Get('status')
     noteStats(): Stats {
         return this.notesService.notesStats();
     }
@@ -68,14 +74,14 @@ export class NotesController {
 
     @Get(":id")
     getNoteById(
-        @Param('id', ParseIntPipe) id: number,
+        @Param('id') id: string,
     ): Note {
         return this.notesService.getNoteById(id);
     }
 
     @Put(":id")
     updateNote(
-        @Param('id', ParseIntPipe) id: number,
+        @Param('id') id: string,
         @Body() body: {title: string, content: string, category: string, isPinned: boolean}
     ): Note {
         return this.notesService.updateNote(id, body.title, body.content, body.category, body.isPinned);
@@ -83,20 +89,14 @@ export class NotesController {
 
     @Delete(":id")
     deleteNote(
-        @Param('id', ParseIntPipe) id: number
+        @Param('id') id: string
     ): Note {
         return this.notesService.deleteNote(id);
     }
 
-    
-
-    
-
-    
-
     @Patch(':id/pin')
     updatePin(
-        @Param('id', ParseIntPipe) id: number,
+        @Param('id') id: string,
     ): Note {
         return this.notesService.updatePin(id);
     }
