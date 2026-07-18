@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Put, Query, StreamableFile } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Patch, Post, Put, Query, StreamableFile } from '@nestjs/common';
 import { NotesService } from './notes.service';
-import type { Note, Stats } from './notes.interface';
+import type { Info, Note, Stats } from './notes.interface';
 import { createReadStream } from 'fs';
 import { join } from 'path';
 
@@ -9,7 +9,9 @@ import { join } from 'path';
     version: "1"
 })
 export class NotesController {
-    constructor(private readonly notesService: NotesService) {}
+    constructor(
+        private readonly notesService: NotesService
+    ) {}
 
     @Get()
     filterCategory(
@@ -52,6 +54,16 @@ export class NotesController {
     @Get('stats')
     noteStats(): Stats {
         return this.notesService.notesStats();
+    }
+
+    @Get('info')
+    getNotesName(): Info {
+        return this.notesService.getNotesName();
+    }
+
+    @Get('version')
+    getApiVersion(): Info {
+        return this.notesService.getApiVersion();
     }
 
     @Get(":id")

@@ -11,3 +11,10 @@ export interface Stats{
     pinnedNotes: number;
     unpinnedNotes: number;
 }
+
+export interface Info{
+    appName : string,
+    version ?: string,
+    status ?: string,
+    environment ?: string
+}

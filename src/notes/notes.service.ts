@@ -1,5 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import type { Note, Stats } from './notes.interface';
+import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import type { Info, Note, Stats } from './notes.interface';
 
 
 @Injectable()
@@ -36,12 +36,30 @@ export class NotesService {
     ];
     private nextId: number = 5;
 
+    constructor(
+        @Inject('APP_NAME') private readonly appName: string,
+        @Inject('MAX_NOTES') private readonly maxNotes: number,
+        @Inject('API_VERSION') private readonly apiVersion: string,
+        @Inject('READ_ONLY_MODE') private readonly readOnlyMode: boolean
+    ) {}
+
 
     getAllNotes(): Note[]{
+        if(this.notes.length > this.maxNotes){
+            throw new ConflictException({
+                message: "Maximum note limit reached"
+            });
+        }
         return this.notes;
     }
 
     createNote(title: string, content: string, category: string, isPinned: boolean): Note{
+        if(this.readOnlyMode){
+            throw new ConflictException({
+                message: "read only mode is on, no new note can be added"
+            })
+        }
+
         const newNote: Note = {
             id: this.nextId++,
             title,
@@ -125,6 +143,19 @@ export class NotesService {
             totalNotes,
             pinnedNotes,
             unpinnedNotes,
+        }
+    }
+
+    getNotesName(): Info {
+        return {
+            appName: this.appName,
+        }
+    }
+
+    getApiVersion(): Info {
+        return {
+            appName: this.appName,
+            version: this.apiVersion
         }
     }
 
