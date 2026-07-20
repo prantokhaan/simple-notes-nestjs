@@ -1,8 +1,9 @@
 import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { Info, Note, Stats } from './notes.interface';
-import { LoggerService } from 'src/logger/logger.service';
+import { LoggerService } from 'src/global/logger/logger.service';
 import { StatService } from 'src/stat/stat.service';
 import { Stat } from 'src/stat/stat.interface';
+import { Users } from 'src/users/users.interface';
 
 
 @Injectable()
@@ -15,6 +16,7 @@ export class NotesService {
         @Inject('READ_ONLY_MODE') private readonly readOnlyMode: boolean,
         @Inject('ID_GENERATOR') private readonly idGen: () => string,
         @Inject('DATABASE') private notes: Note[],
+        @Inject('USER_DATABASE') private users: Users[],
         private readonly logger: LoggerService,
         private readonly stat: StatService
     ) {}
@@ -26,10 +28,22 @@ export class NotesService {
                 message: "Maximum note limit reached"
             });
         }
-        return this.notes;
+        const userNotes: Note[] = [];
+
+        this.notes.forEach(e => {
+            const user = this.users.find((u) => u.id === e.userId);
+            const note: Note = {
+                ...e,
+                userName: user?.name,
+            }
+            console.log("Got Users with: ", userNotes);
+            userNotes.push(note);
+        });
+
+        return userNotes;
     }
 
-    createNote(title: string, content: string, category: string, isPinned: boolean): Note{
+    createNote(title: string, content: string, category: string, isPinned: boolean, userId: string): Note{
         if(this.readOnlyMode){
             this.logger.error("Read Only Mode is on, new note entry restricted");
             throw new ConflictException({
@@ -42,7 +56,8 @@ export class NotesService {
             title,
             content,
             category,
-            isPinned
+            isPinned,
+            userId
         }
 
         this.notes.push(newNote);
@@ -152,6 +167,12 @@ export class NotesService {
             appName: this.appName,
             version: this.apiVersion
         }
+    }
+
+    getUsersNotes(userId: string): Note[] {
+        return this.notes.filter(
+            (e) => e.userId === userId
+        )
     }
 
 }

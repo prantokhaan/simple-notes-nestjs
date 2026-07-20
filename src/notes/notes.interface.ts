@@ -4,6 +4,8 @@ export interface Note{
     content: string;
     category: string;
     isPinned: boolean;
+    userId: string;
+    userName?: string;
 }
 
 export interface Stats{

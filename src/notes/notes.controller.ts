@@ -24,9 +24,9 @@ export class NotesController {
 
     @Post()
     createNote(
-        @Body() body: {title: string, content: string, category: string, isPinned: boolean}
+        @Body() body: {title: string, content: string, category: string, isPinned: boolean, userId: string}
     ): Note {
-        return this.notesService.createNote(body.title, body.content, body.category, body.isPinned);
+        return this.notesService.createNote(body.title, body.content, body.category, body.isPinned, body.userId);
     }
 
     @Get("search")
@@ -70,6 +70,13 @@ export class NotesController {
     @Get('version')
     getApiVersion(): Info {
         return this.notesService.getApiVersion();
+    }
+
+    @Get('user/:id')
+    getUsersNotes(
+        @Param('id') id: string
+    ): Note[] {
+        return this.notesService.getUsersNotes(id)
     }
 
     @Get(":id")
