@@ -6,6 +6,8 @@ export interface Note{
     isPinned: boolean;
     userId: string;
     userName?: string;
+    readingTime: number;
+    tags: string[];
 }
 
 export interface Stats{
