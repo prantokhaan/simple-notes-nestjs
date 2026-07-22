@@ -3,6 +3,9 @@ import { AppModule } from './app.module';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import { join } from 'path';
+import morgan from 'morgan';
+import helmet from 'helmet';
+import compression from 'compression';
 
 const envFile = process.env.NODE_ENV === 'production'
   ? '.env.production'
@@ -14,6 +17,10 @@ async function bootstrap() {
   app.enableVersioning({
     type: VersioningType.URI,
   });
+
+  app.use(morgan('tiny'));
+  app.use(helmet());
+  app.use(compression());
 
   app.useGlobalPipes(
     new ValidationPipe({

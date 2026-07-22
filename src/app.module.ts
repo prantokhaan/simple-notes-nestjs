@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { NotesModule } from './notes/notes.module';
@@ -10,6 +10,10 @@ import { UsersModule } from './users/users.module';
 import { LoggerModule } from './global/logger/logger.module';
 import {ConfigModule as ConfigModuleBuilt} from '@nestjs/config'
 import * as Joi from 'joi';
+import { LoggerMiddleware } from './shared/middleware/logger.middleware';
+import { HttpMiddleware } from './shared/middleware/http.middleware';
+import { RequestMiddleware } from './shared/middleware/request.middleware';
+import { ApiKeyMiddleware } from './shared/middleware/ApiKey.middleware';
 
 @Module({
     imports: [
@@ -55,4 +59,19 @@ import * as Joi from 'joi';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(ApiKeyMiddleware)
+      .forRoutes('*')
+
+    consumer
+      .apply(LoggerMiddleware, RequestMiddleware)
+      .forRoutes('v1/users')
+
+    consumer
+      .apply(HttpMiddleware)
+      .exclude('v1/notes')
+      .forRoutes('*')
+  }
+}

@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req } from '@nestjs/common';
 import { UsersService } from './users.service';
 import type { Users } from './users.interface';
+import type {Request} from 'express';
 
 @Controller({
   path: 'users',
@@ -15,7 +16,8 @@ export class UsersController {
   }
 
   @Get()
-  getAllUsers(): Users[] {
+  getAllUsers(@Req() req: Request): Users[] {
+    console.log("Request ID: ", req.requestId)
     return this.users.getAllUsers();
   }
 
