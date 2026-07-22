@@ -4,13 +4,13 @@ import { LoggerService } from 'src/global/logger/logger.service';
 import { StatService } from 'src/stat/stat.service';
 import { Stat } from 'src/stat/stat.interface';
 import { Users } from 'src/users/users.interface';
+import { ConfigService } from '@nestjs/config';
 
 
 @Injectable()
 export class NotesService {
 
     constructor(
-        @Inject('APP_NAME') private readonly appName: string,
         @Inject('MAX_NOTES') private readonly maxNotes: number,
         @Inject('API_VERSION') private readonly apiVersion: string,
         @Inject('READ_ONLY_MODE') private readonly readOnlyMode: boolean,
@@ -18,7 +18,8 @@ export class NotesService {
         @Inject('DATABASE') private notes: Note[],
         @Inject('USER_DATABASE') private users: Users[],
         private readonly logger: LoggerService,
-        private readonly stat: StatService
+        private readonly stat: StatService,
+        private readonly config: ConfigService
     ) {}
 
 
@@ -43,7 +44,7 @@ export class NotesService {
         return userNotes;
     }
 
-    createNote(title: string, content: string, category: string, isPinned: boolean, userId: string): Note{
+    createNote(title: string, content: string, category: string, isPinned: boolean, userId: string, readingTime: number, tags: string[]): Note{
         if(this.readOnlyMode){
             this.logger.error("Read Only Mode is on, new note entry restricted");
             throw new ConflictException({
@@ -57,7 +58,9 @@ export class NotesService {
             content,
             category,
             isPinned,
-            userId
+            userId,
+            readingTime,
+            tags
         }
 
         this.notes.push(newNote);
@@ -158,13 +161,13 @@ export class NotesService {
 
     getNotesName(): Info {
         return {
-            appName: this.appName,
+            appName: this.config.getOrThrow('APP_NAME'),
         }
     }
 
     getApiVersion(): Info {
         return {
-            appName: this.appName,
+            appName: this.config.getOrThrow('APP_NAME'),
             version: this.apiVersion
         }
     }

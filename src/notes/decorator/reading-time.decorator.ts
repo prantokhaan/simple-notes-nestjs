@@ -8,7 +8,7 @@ export function IsReadingTimeFive(
         registerDecorator({
             target: object.constructor,
             propertyName,
-            options: isValidationOptions,
+            options: validation,
             validator: isReadingTimeFiveConstraint
         })
     }

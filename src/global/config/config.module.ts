@@ -1,8 +1,6 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { ConfigService } from './config.service';
 import { randomUUID } from 'crypto';
-import { Note } from 'src/notes/notes.interface';
-import { Users } from 'src/users/users.interface';
 import { ConfigOptions } from './config.interface';
 
 @Global()
@@ -11,15 +9,12 @@ export class ConfigModule {
   static forRoot(options: ConfigOptions): DynamicModule {
     return {
       module: ConfigModule,
+      global: true,
       providers: [
         ConfigService,
         {
           provide: 'ID_GENERATOR',
           useFactory: () => () => randomUUID(),
-        },
-        {
-          provide: 'APP_NAME',
-          useValue: options.appName,
         },
         {
           provide: 'MAX_NOTES',
@@ -36,6 +31,10 @@ export class ConfigModule {
         {
           provide: 'READ_ONLY_MODE',
           useValue: options.readOnlyMode,
+        },
+        {
+          provide: 'APP_NAME',
+          useFactory: () => process.env.APP_NAME || 'default',
         },
         {
           provide: 'DATABASE',

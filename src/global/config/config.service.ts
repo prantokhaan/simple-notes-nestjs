@@ -3,16 +3,12 @@ import { Injectable, Inject } from '@nestjs/common';
 @Injectable()
 export class ConfigService {
     constructor(
-        @Inject('APP_NAME') private appName: string,
         @Inject('MAX_NOTES') private maxNotes: number,
         @Inject('API_VERSION') private apiVersion: string,
         @Inject('ENVIRONMENT') private environment: string,
         @Inject('READ_ONLY_MODE') private readOnlyMode: boolean,
+        @Inject('APP_NAME') private appName: string,
     ) {}
-
-    getAppName(): string {
-        return this.appName;
-    }
 
     getMaxNotes(): number {
         return this.maxNotes;
@@ -28,5 +24,9 @@ export class ConfigService {
 
     getReadOnlyMode(): boolean {
         return this.readOnlyMode;
+    }
+
+    getAppName(): string {
+        return this.appName;
     }
 }

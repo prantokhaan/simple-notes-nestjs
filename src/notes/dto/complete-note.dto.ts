@@ -1,3 +1,4 @@
+import { IntersectionType } from "@nestjs/mapped-types";
 import { AuditDto } from "./audit.dto";
 import { NoteDto } from "./note.dto";
 

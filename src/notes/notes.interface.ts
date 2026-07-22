@@ -10,6 +10,7 @@ export interface Note{
     tags: string[];
 }
 
+
 export interface Stats{
     totalNotes: number;
     pinnedNotes: number;

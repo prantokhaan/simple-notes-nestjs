@@ -4,6 +4,8 @@ import type { Info, Note, Stats } from './notes.interface';
 import { createReadStream } from 'fs';
 import { join } from 'path';
 import type { Stat } from 'src/stat/stat.interface';
+import { NoteDto } from './dto/note.dto';
+import { UpdateNoteDto } from './dto/update-note.dto';
 
 @Controller({
     path: "notes",
@@ -24,9 +26,9 @@ export class NotesController {
 
     @Post()
     createNote(
-        @Body() body: {title: string, content: string, category: string, isPinned: boolean, userId: string}
+        @Body() body: NoteDto
     ): Note {
-        return this.notesService.createNote(body.title, body.content, body.category, body.isPinned, body.userId);
+        return this.notesService.createNote(body.title, body.content, body.category, body.isPinned, body.userId, body.readingTime, body.tags.map(t => t.tag));
     }
 
     @Get("search")
@@ -89,7 +91,7 @@ export class NotesController {
     @Put(":id")
     updateNote(
         @Param('id') id: string,
-        @Body() body: {title: string, content: string, category: string, isPinned: boolean}
+        @Body() body: UpdateNoteDto
     ): Note {
         return this.notesService.updateNote(id, body.title, body.content, body.category, body.isPinned);
     }

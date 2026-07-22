@@ -1,8 +1,8 @@
-import { IsNotEmpty, IsString, Max } from "class-validator";
+import { IsNotEmpty, IsString, Max, MaxLength } from "class-validator";
 
-export class TagsDto{
-    @IsNotEmpty()
-    @IsString()
-    @Max(20)
-    tag: string;
+export class TagsDto {
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(20)
+  tag!: string;
 }
